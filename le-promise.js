@@ -33,7 +33,7 @@ class lePromise {
 					try { next.successor.resolver( next.rejectProcessor(this.reason) ); }
 					catch (nextError) { next.successor.rejecter(nextError); }
 				} else next.successor.resolver();
-			}	
+			}
 		}
 	}
 
@@ -68,10 +68,32 @@ class lePromise {
 		return new lePromise( (res,rej)=>{ rej(err); } );
 	}
 
-	static all() {
+	static all( promises ) {
+		return new lePromise( (res,rej)=>{
+			if ( !Array.isArray(promises) || !promises.length) res([]);
+			for ( let i=0; i<promises.length; i++ ) {
+				// is p a le-promise?
+				let p = promises[i];
+				p.then(val=>{
+					let allResolves = [], allAreResolved = true;
+					for (let j=0; j<promises.length; j++) {
+						let pl = promises[j];
+						if      ( pl.state === 'fulfilled') { allResolves.push(pl.value); }
+						else { allAreResolved = false; break; }
+					}
+					if ( allAreResolved ) res(allResolves);
+				},rej);
+			}
+
+		});
+	}
+
+	static race() {
 
 	}
 }
 
 module.exports = lePromise;
 
+var x = lePromise.all([lePromise.resolve(15),lePromise.resolve(18),lePromise.reject(new Error('bla'))]).then(x => {console.log(`Resolved with ${x}`);} );
+console.log(x);
