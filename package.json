@@ -1,0 +1,25 @@
+{
+  "name": "le-promise",
+  "version": "1.0.0",
+  "description": "Custom implementation of JavaScript Promise class",
+  "main": "le-promise.js",
+  "scripts": {
+    "test": "le-promise-test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/levanroinishvili/le-promise.git"
+  },
+  "keywords": [
+    "Promise",
+    "JavaScript",
+    "Custom",
+    "Promise"
+  ],
+  "author": "Levan Roinishvili",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/levanroinishvili/le-promise/issues"
+  },
+  "homepage": "https://github.com/levanroinishvili/le-promise#readme"
+}
