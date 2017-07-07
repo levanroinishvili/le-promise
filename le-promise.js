@@ -61,6 +61,14 @@ class lePromise {
 	}
 
 	static resolve(val) {
+		return new lePromise( (res,rej)=>{ res(val); } );
+	}
+
+	static reject(err) {
+		return new lePromise( (res,rej)=>{ rej(err); } );
+	}
+
+	static all() {
 
 	}
 }
