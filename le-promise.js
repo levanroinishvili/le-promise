@@ -1,3 +1,4 @@
+
 class lePromise {
 	constructor ( promisedFunction ) {
 		this.state = 'pending';
@@ -50,12 +51,12 @@ class lePromise {
 			if ( typeof resolveProcessor === 'function' ) {
 				try { successor.resolver(resolveProcessor(this.value)); }
 				catch (newError) { successor.rejecter(newError); }
-			} else successor.resolver();
+			} else successor.resolver(this.value);
 		} else if ( this.state === 'rejected'  ) {
 			if ( typeof rejectProcessor === 'function'  ) {
 				try { successor.resolver(rejectProcessor(this.reason)); }
 				catch (newError) { successor.rejecter(newError); }
-			} else successor.resolver();
+			} else successor.rejecter(this.reason);
 		}
 		return successor;
 	}
@@ -72,28 +73,35 @@ class lePromise {
 		return new lePromise( (res,rej)=>{
 			if ( !Array.isArray(promises) || !promises.length) res([]);
 			for ( let i=0; i<promises.length; i++ ) {
-				// is p a le-promise?
 				let p = promises[i];
-				p.then(val=>{
-					let allResolves = [], allAreResolved = true;
-					for (let j=0; j<promises.length; j++) {
-						let pl = promises[j];
-						if      ( pl.state === 'fulfilled') { allResolves.push(pl.value); }
-						else { allAreResolved = false; break; }
-					}
-					if ( allAreResolved ) res(allResolves);
-				},rej);
+				if ( typeof p === 'object' && typeof p.then === 'function' ) {	// Loose check: if p a Promise?
+					p.then(val=>{
+						let allResolves = [], allAreResolved = true;
+						for (let j=0; j<promises.length; j++) {
+							let pl = promises[j];
+							if      ( pl.state === 'fulfilled') { allResolves.push(pl.value); }
+							else { allAreResolved = false; break; }
+						}
+						if ( allAreResolved ) res(allResolves);
+						//else throw new Error('This sill be ignored');
+					},rej);
+				}
 			}
-
 		});
 	}
 
-	static race() {
-
+	static race(promises) {
+		return new lePromise( (res,rej)=>{
+			if ( !Array.isArray(promises) || !promises.length) res();
+			for ( let i=0; i<promises.length; i++ ) {
+				let p = promises[i];
+				if ( typeof p === 'object' && typeof p.then === 'function' ) {	// Loose check: if p a Promise?
+					p.then(res,rej);
+				}
+			}
+		});
 	}
-}
+
+} // End of class lePromise
 
 module.exports = lePromise;
-
-var x = lePromise.all([lePromise.resolve(15),lePromise.resolve(18),lePromise.reject(new Error('bla'))]).then(x => {console.log(`Resolved with ${x}`);} );
-console.log(x);
