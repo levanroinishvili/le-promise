@@ -15,9 +15,13 @@ class lePromise {
 			while(this.chain.length) {
 				let next = this.chain.shift();
 				if ( typeof next.resolveProcessor === 'function' ) {
-					let nextError;
-					try { next.successor.resolver( next.resolveProcessor(this.value) ); }
-					catch (nextError) { next.successor.rejecter(nextError); }
+					let nextVal, nextError;
+					try {
+						nextVal = next.resolveProcessor(this.value);
+						if ( typeof nextVal === 'object' && typeof nextVal.then === 'function' )
+							nextVal.then(next.successor.resolver.bind(next.successor),next.successor.rejecter.bind(next.successor));
+						else next.successor.resolver( nextVal );
+					} catch (nextError) { next.successor.rejecter(nextError); }
 				}  else next.successor.resolver();
 			}
 		}
@@ -30,9 +34,13 @@ class lePromise {
 			while(this.chain.length) {
 				let next = this.chain.shift();
 				if ( typeof next.rejectProcessor === 'function' ) {
-					let nextError;
-					try { next.successor.resolver( next.rejectProcessor(this.reason) ); }
-					catch (nextError) { next.successor.rejecter(nextError); }
+					let nextVal, nextError;
+					try {
+						nextVal = next.rejectProcessor(this.reason);
+						if ( typeof nextVal === 'object' && typeof nextVal.then === 'function' ) {
+							nextVal.then(next.successor.resolver.bind(next.successor),next.successor.rejecter.bind(next.successor));
+						} else next.successor.resolver( nextVal );
+					} catch (nextError) { next.successor.rejecter(nextError); }
 				} else next.successor.resolver();
 			}
 		}
@@ -41,7 +49,7 @@ class lePromise {
 
 	then(resolveProcessor,rejectProcessor) {
 		let successor = new lePromise( (res,rej)=>{} );
-		let newError;
+		let newValue, newError;
 		if      ( this.state === 'pending'   ) {
 			let next = {successor: successor};
 			if ( typeof resolveProcessor === 'function' ) next.resolveProcessor = resolveProcessor;
@@ -49,14 +57,22 @@ class lePromise {
 			this.chain.push(next);
 		} else if ( this.state === 'fulfilled' ) {
 			if ( typeof resolveProcessor === 'function' ) {
-				try { successor.resolver(resolveProcessor(this.value)); }
-				catch (newError) { successor.rejecter(newError); }
+				try {
+					newValue = resolveProcessor(this.value);
+					if (typeof newValue === 'object' && typeof newValue.then === 'function' )
+						return newValue;
+					else successor.resolver(newValue);
+				}	catch (newError) { successor.rejecter(newError); }
 			} else successor.resolver(this.value);
 		} else if ( this.state === 'rejected'  ) {
 			if ( typeof rejectProcessor === 'function'  ) {
-				try { successor.resolver(rejectProcessor(this.reason)); }
-				catch (newError) { successor.rejecter(newError); }
-			} else successor.rejecter(this.reason);
+				try {
+					newValue = rejectProcessor(this.reason);
+					if ( typeof newValue === 'object' && typeof newValue.then === 'function' )
+						return newValue;
+					successor.resolver(newValue);
+				} catch (newError) { return new lePromise((res,rej)=>{rej(newError);}); }
+			} else return new lePromise((res,rej)=>{rej(this.reason);});
 		}
 		return successor;
 	}
