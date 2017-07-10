@@ -1,4 +1,3 @@
-
 class lePromise {
 	constructor ( promisedFunction ) {
 		this.state = 'pending';

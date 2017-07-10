@@ -10,7 +10,7 @@
 //   Namely, to 'wait' until one test ends before starting another test
 
 
-const lePromise = require('./le-promise');
+const lePromise = require('../src/es6/le-promise');
 
 defaultAsyncPromiseDelay = 2000; // Miliseconds
 
@@ -59,7 +59,7 @@ function test_custom_asynchronous_promise(delay) {
 	if ( typeof delay === 'number' ) trueDelay = Math.floor(delay); else trueDelay = defaultAsyncPromiseDelay;
 
 	return new Promise( (resolve,reject) => {	// Just a wrapper for test. Not testing this standard Promise
-		
+
 		var promise_standard_async = new lePromise( asyncronous_promise_maker('custom',trueDelay) ); // Testing this custom Promise
 
 		promise_standard_async.then(
@@ -82,9 +82,9 @@ function test_custom_asynchronous_promise(delay) {
 
 function test_custom_synchronous_promise() {
 	return new Promise( (resolve,reject) => {	// Just a wrapper for test. Not testing this standard Promise
-		
+
 		var promise_standard_sync = new lePromise( syncronous_promise_maker('custom') ); // Testing this custom Promise
-		
+
 		promise_standard_sync.then(
 			val => { timedLog(`++++ CUSTOM Synchronous promise resolved with [${val}]`); return 1; },
 			err => { timedLog(`---- CUSTOM Synchronous promise REJECTED with [${err.message}]`); throw new Error('Error *'); }
@@ -105,9 +105,9 @@ function test_custom_synchronous_promise() {
 
 function test_standard_synchronous_promise() {
 	return new Promise( (resolve,reject) => {	// Just a wrapper for test. Not testing this standard Promise
-		
+
 		var promise_standard_sync = new Promise( syncronous_promise_maker('standard') ); // Testing (studing for comparison) this standard Promise
-		
+
 		promise_standard_sync.then(
 			val => { timedLog(`++++ Standard Synchronous promise resolved with [${val}]`); return 1; },
 			err => { timedLog(`---- Standard Synchronous promise REJECTED with [${err.message}]`); throw new Error('Error *'); }
@@ -128,7 +128,7 @@ function test_standard_synchronous_promise() {
 function test_standard_asynchronous_promise(delay) {
 	let trueDelay;
 	if ( typeof delay === 'number' ) trueDelay = Math.floor(delay); else trueDelay = defaultAsyncPromiseDelay;
-	
+
 	return new Promise( (resolve,reject) => {	// Just a wrapper for test. Not testing this standard Promise
 
 		var promise_standard_async = new Promise( asyncronous_promise_maker('standard',trueDelay) ); // Testing (studing for comparison) this standard Promise
@@ -161,4 +161,3 @@ test_custom_asynchronous_promise()
 	.then(test_custom_synchronous_promise)
 	.then(test_standard_synchronous_promise)
 	.then(test_standard_asynchronous_promise);
-

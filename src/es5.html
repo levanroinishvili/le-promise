@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>lePromise ES5</title>
+    <script src="/node_modules/systemjs/dist/system.js"></script>
+    <script src="/systemjs.config.js"></script>
+    <script>SystemJS.import('/es5/le-promise').then(lp=>{lePromise=lp;});</script>
+  </head>
+  <body>
+    <h1>Le Promise</h1>
+    <p>You can now use lePromise() instead of Promise()</p>
+    <p>For example, open browser console and type:</p>
+    <p>lePromse.resolve(10);</p>
+  </body>
+</html>
