@@ -1,4 +1,4 @@
-const lePromise = require('./le-promise');
+const lePromise = require('../src/es6/le-promise');
 let i=0;
 
 // function nextPromise(val) {
